@@ -37,7 +37,22 @@
                 const GMRn1 = parseFloat(document.getElementById("GMRn1").value);        // feet
 
                 // values for dry earth
-                const Dkkp = m_to_ft(2690);  // feet
+                Dkkp = 1
+                if(document.getElementById("material").value == "seawater") {
+                    Dkkp = m_to_ft(38.25);  // feet
+                } else if (document.getElementById("material").value == "swampyground") {
+                    Dkkp = m_to_ft(560);
+                } else if (document.getElementById("material").value == "dampearth") {
+                    Dkkp = m_to_ft(850);
+                } else if (document.getElementById("material").value == "dryearth") {
+                    Dkkp = m_to_ft(2690);
+                } else if (document.getElementById("material").value == "pureslate") {
+                    Dkkp = m_to_ft(269000);
+                } else if (document.getElementById("material").value == "sandstone") {
+                    Dkkp = m_to_ft(2690000);
+                } else {
+                    Dkkp = m_to_ft(658.5*math.pow((parseFloat(document.getElementById("resistivity").value)/f),0.5))
+                }
 
                 const Rkp = 9.869E-7 * f;
                 const Rk = (Ra / mi_to_m(1)) / bundle; // convert to ohms per meter per phase
@@ -119,11 +134,33 @@
                 document.getElementById("Z2").textContent = `${Zshat[2][2].re * 1000} + j${Zshat[2][2].im * 1000} ohm/km (negative sequence)`;
             }
 
+            function dropdownChangeHandler() {
+                if(document.getElementById("material").value=="custom") {
+                    document.getElementById("resistivitylabel").style="display:inline;";
+                    document.getElementById("resistivity").style="display:inline;";
+                    document.getElementById("resistivityunits").style="display:inline;";
+                } else {
+                    document.getElementById("resistivitylabel").style="display:none;";
+                    document.getElementById("resistivity").style="display:none;";
+                    document.getElementById("resistivityunits").style="display:none;";
+                }
+            }
+
         </script>
     </head>
     <body>
         <form>
             <label>System frequency: </label> <input type="text" id="frequency" name="frequency" value="60" /> <br />
+            <label>Right of way material: </label> <select name="material" id="material" onchange="dropdownChangeHandler()">
+                <option value="seawater">Sea water</option>
+                <option value="swampyground">Swampy ground</option>
+                <option value="dampearth">Average damp earth</option>
+                <option value="dryearth" selected>Dry earth</option>
+                <option value="pureslate">Pure slate</option>
+                <option value="sandstone">Sandstone</option>
+                <option value="custom">Custom resistivity</option>
+            </select><br />
+            <label id="resistivitylabel" style="display:none;">Ground resistivity: </label><input type="text" id="resistivity" name="resistivity" value="1000" style="display:none;"/> <span id="resistivityunits" style="display:none;">(ohm meter)</span><br />
             <label>A Position (x, y): </label> <input type="text" id="ax" name="ax" value="0" />, <input type="text" id="ay" name="ay" value="48" /> (ft)<br />
             <label>B Position (x, y): </label> <input type="text" id="bx" name="bx" value="25" />, <input type="text" id="by" name="by" value="48" /> (ft)<br />
             <label>C Position (x, y): </label> <input type="text" id="cx" name="cx" value="50" />, <input type="text" id="cy" name="cy" value="48" /> (ft)<br />
