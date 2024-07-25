@@ -113,6 +113,10 @@
                 console.log(`Z0 = ${Zshat[0][0].re * 1000} + j${Zshat[0][0].im * 1000} ohm/km (zero sequence)`);
                 console.log(`Z1 = ${Zshat[1][1].re * 1000} + j${Zshat[1][1].im * 1000} ohm/km (positive sequence)`);
                 console.log(`Z2 = ${Zshat[2][2].re * 1000} + j${Zshat[2][2].im * 1000} ohm/km (negative sequence)`);
+
+                document.getElementById("Z0").textContent = `${Zshat[0][0].re * 1000} + j${Zshat[0][0].im * 1000} ohm/km (zero sequence)`;
+                document.getElementById("Z1").textContent = `${Zshat[1][1].re * 1000} + j${Zshat[1][1].im * 1000} ohm/km (positive sequence)`;
+                document.getElementById("Z2").textContent = `${Zshat[2][2].re * 1000} + j${Zshat[2][2].im * 1000} ohm/km (negative sequence)`;
             }
 
         </script>
@@ -133,6 +137,11 @@
             <label>Neutral conductor resistance: </label><input type="text" id="Rn1" name="Rn1" value="1.52" /> (ohms per km per conductor) <br />
             <label>Neutral conductor geometric mean radius (GMR): </label><input type="text" id="GMRn1" name="GMRn1" value="0.0021" /> (feet) <br />
             <input type="button" id="Submit" name="Submit" value="Calculate" onclick="calcImpedance()"/>
+            <br />
+            <br />
+            <span>Z<sub>0</sub> = </span><span id="Z0"></span><br />
+            <span>Z<sub>1</sub> = </span><span id="Z1"></span><br />
+            <span>Z<sub>2</sub> = </span><span id="Z2"></span><br />
         </form>
     </body>
 </html>
