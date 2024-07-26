@@ -62,7 +62,7 @@
 
                 Dkkc = Math.pow(GMRa * Math.pow(bundle_spacing, (bundle - 1)), (1 / bundle));
                 if (bundle >= 4){
-                    Dkkc = Dkkc * 1.091
+                    Dkkc = Dkkc * 1.091;
                 }
                 const Dkkg = GMRn1;
 
@@ -77,7 +77,7 @@
                 const Zbn1 = Zbn2 = math.add(Rkp, math.multiply(math.complex(0, 1),(2 * Math.PI * 60)*(2E-7)*(math.log(dist(bpos[0], bpos[1], n1pos[0], n1pos[1] - Dkkp) / dist(bpos[0], bpos[1], n1pos[0], n1pos[1])))));
 
                 const Zn1n2 = math.add(Rkp, math.multiply(math.complex(0, 1),(2 * Math.PI * 60)*(2E-7)*(math.log(dist(n1pos[0], n1pos[1], n2pos[0], n2pos[1] - Dkkp) / dist(n1pos[0], n1pos[1], n2pos[0], n2pos[1])))));
-                console.log(Zan2)
+                console.log(Zan2);
 
                 const Za = [
                     [Zaa, Zab, Zac],
@@ -106,8 +106,8 @@
                 const Zs = math.divide(math.add( math.add(Zp[0][0], Zp[1][1]), Zp[2][2]),3);
                 const Zm = math.divide(math.add( math.add(Zp[0][1], Zp[0][2]), Zp[1][2]),3);
 
-                console.log(Zs)
-                console.log(Zm)
+                console.log(Zs);
+                console.log(Zm);
                 const Zpsym = [
                     [Zs, Zm, Zm],
                     [Zm, Zs, Zm],
@@ -200,7 +200,7 @@
                 //Cphat = np.multiply(1j*(2*np.pi*f)*1000,(1/3)*np.matmul(np.matmul(Ainv,Cpsym),A))
                 // Cshat = (1/3)*np.matmul(np.matmul(Ainv,Cpsym),A)  //ohms per meter
                 // 1j*2*np.pi*Cpsym
-                const Cphat = math.multiply(math.multiply(math.complex(0,1), (2*Math.PI*f/3)), math.multiply(math.multiply(Ainv, Cpsym), A)) //math.multiply(math.multiply(math.complex(0, 1),(2 * Math.PI * f * 1000)), math.multiply((1 / 3), math.multiply(math.multiply(Ainv, Cpsym), A)));
+                const Cphat = math.multiply(math.multiply(math.complex(0,1), (2*Math.PI*f/3)), math.multiply(math.multiply(Ainv, Cpsym), A)); //math.multiply(math.multiply(math.complex(0, 1),(2 * Math.PI * f * 1000)), math.multiply((1 / 3), math.multiply(math.multiply(Ainv, Cpsym), A)));
                 console.log(Cphat);
                 console.log(`Y0 = ${Cphat[0][0].im * 1000} ohm/km (zero sequence)`);
                 console.log(`Y1 = ${Cphat[1][1].im * 1000} ohm/km (positive sequence)`);
