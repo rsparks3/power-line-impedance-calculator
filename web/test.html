@@ -28,6 +28,7 @@
                 const GMRa = parseFloat(document.getElementById("GMRa").value);         // Geometric mean radius (feet)
                 const GMRb = GMRa;
                 const GMRc = GMRa;
+                const ODa = parseFloat(document.getElementById("ODa").value);
                 const bundle = parseFloat(document.getElementById("bundle").value);            // Conductors in bundle
                 const bundle_spacing = parseFloat(document.getElementById("bundle_spacing").value);  // feet
 
@@ -35,6 +36,7 @@
                 const Rn1 = parseFloat(document.getElementById("Rn1").value);            // Ohms per km
                 const Rn2 = Rn1;
                 const GMRn1 = parseFloat(document.getElementById("GMRn1").value);        // feet
+                const ODn = parseFloat(document.getElementById("ODn").value);
 
                 // values for dry earth
                 Dkkp = 1
@@ -132,6 +134,82 @@
                 document.getElementById("Z0").textContent = `${Zshat[0][0].re * 1000} + j${Zshat[0][0].im * 1000} ohm/km (zero sequence)`;
                 document.getElementById("Z1").textContent = `${Zshat[1][1].re * 1000} + j${Zshat[1][1].im * 1000} ohm/km (positive sequence)`;
                 document.getElementById("Z2").textContent = `${Zshat[2][2].re * 1000} + j${Zshat[2][2].im * 1000} ohm/km (negative sequence)`;
+
+
+                const ra = ODa / (2 * 12); // inches to feet
+                const rn = ODn / (2 * 12);
+
+                let Dsc = Math.pow(ra * Math.pow(bundle_spacing, (bundle - 1)), (1 / bundle));
+                if (bundle >= 4) {
+                    Dkkc *= 1.091;
+                }
+                let Dscn = rn;
+
+                const Paa = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((apos[1] * 2) / Dsc);
+                const Pbb = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((bpos[1] * 2) / Dsc);
+                const Pcc = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((cpos[1] * 2) / Dsc);
+                const Pn1n1 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((n1pos[1] * 2) / Dscn);
+                const Pn2n2 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((n2pos[1] * 2) / Dscn);
+
+                const Pab = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(apos[0], apos[1], bpos[0], (-1 * bpos[1]))) / (dist(apos[0], apos[1], bpos[0], bpos[1])));
+                const Pac = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(apos[0], apos[1], cpos[0], (-1 * cpos[1]))) / (dist(apos[0], apos[1], cpos[0], cpos[1])));
+                const Pbc = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(bpos[0], bpos[1], cpos[0], (-1 * cpos[1]))) / (dist(bpos[0], bpos[1], cpos[0], cpos[1])));
+
+                const Pan1 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(apos[0], apos[1], n1pos[0], (-1 * n1pos[1]))) / (dist(apos[0], apos[1], n1pos[0], n1pos[1])));
+                const Pan2 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(apos[0], apos[1], n2pos[0], (-1 * n2pos[1]))) / (dist(apos[0], apos[1], n2pos[0], n2pos[1])));
+                const Pbn1 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(bpos[0], bpos[1], n1pos[0], (-1 * n1pos[1]))) / (dist(bpos[0], bpos[1], n1pos[0], n1pos[1])));
+                const Pbn2 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(bpos[0], bpos[1], n2pos[0], (-1 * n2pos[1]))) / (dist(bpos[0], bpos[1], n2pos[0], n2pos[1])));
+                const Pcn1 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(cpos[0], cpos[1], n1pos[0], (-1 * n1pos[1]))) / (dist(cpos[0], cpos[1], n1pos[0], n1pos[1])));
+                const Pcn2 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(cpos[0], cpos[1], n2pos[0], (-1 * n2pos[1]))) / (dist(cpos[0], cpos[1], n2pos[0], n2pos[1])));
+
+                const Pn1n2 = (1 / (2 * Math.PI * 8.854E-12)) * Math.log((dist(n1pos[0], n1pos[1], n2pos[0], (-1 * n2pos[1]))) / (dist(n1pos[0], n1pos[1], n2pos[0], n2pos[1])));
+
+                const Pa = [
+                    [Paa, Pab, Pac],
+                    [Pab, Pbb, Pbc],
+                    [Pac, Pbc, Pcc]
+                ];
+
+                const Pb = [
+                    [Pan1, Pan2],
+                    [Pbn1, Pbn2],
+                    [Pcn1, Pcn2]
+                ];
+
+                const Pc = [
+                    [Pan1, Pbn1, Pcn1],
+                    [Pan2, Pbn2, Pcn2]
+                ];
+
+                const Pd = [
+                    [Pn1n1, Pn1n2],
+                    [Pn1n2, Pn2n2]
+                ];
+                    
+                const Cp = math.inv(math.subtract(Pa, math.multiply(math.multiply(Pb, math.inv(Pd)), Pc)));
+
+                const Caa = math.divide(math.add( math.add(Cp[0][0], Cp[1][1]), Cp[2][2]),3);
+                const Cab = math.divide(math.add( math.add(Cp[0][1], Cp[0][2]), Cp[1][2]),3);
+
+                const Cpsym = [
+                    [Caa, Cab, Cab],
+                    [Cab, Caa, Cab],
+                    [Cab, Cab, Caa]
+                ];
+
+                //Cphat = np.multiply(1j*(2*np.pi*f)*1000,(1/3)*np.matmul(np.matmul(Ainv,Cpsym),A))
+                // Cshat = (1/3)*np.matmul(np.matmul(Ainv,Cpsym),A)  //ohms per meter
+                // 1j*2*np.pi*Cpsym
+                const Cphat = math.multiply(math.multiply(math.complex(0,1), (2*Math.PI*f/3)), math.multiply(math.multiply(Ainv, Cpsym), A)) //math.multiply(math.multiply(math.complex(0, 1),(2 * Math.PI * f * 1000)), math.multiply((1 / 3), math.multiply(math.multiply(Ainv, Cpsym), A)));
+                console.log(Cphat);
+                console.log(`Y0 = ${Cphat[0][0].im * 1000} ohm/km (zero sequence)`);
+                console.log(`Y1 = ${Cphat[1][1].im * 1000} ohm/km (positive sequence)`);
+                console.log(`Y2 = ${Cphat[2][2].im * 1000} ohm/km (negative sequence)`);
+
+                document.getElementById("Y0").textContent = `j${Cphat[0][0].im * 1000} ohm/km (zero sequence)`;
+                document.getElementById("Y1").textContent = `j${Cphat[1][1].im * 1000} ohm/km (positive sequence)`;
+                document.getElementById("Y2").textContent = `j${Cphat[2][2].im * 1000} ohm/km (negative sequence)`;
+
             }
 
             function dropdownChangeHandler() {
@@ -166,6 +244,7 @@
             <label>C Position (x, y): </label> <input type="text" id="cx" name="cx" value="50" />, <input type="text" id="cy" name="cy" value="48" /> (ft)<br />
             <label>Phase conductor resistance: </label><input type="text" id="Ra" name="Ra" value="0.1128" /> (ohms per mile per conductor) <br />
             <label>Phase conductor geometric mean radius (GMR): </label><input type="text" id="GMRa" name="GMRa" value="0.0403" /> (feet) <br />
+            <label>Phase conductor outer diameter (OD): </label><input type="text" id="ODa" name="ODa" value="1.196" /> (inches) <br />
             <label>Phase bundle size: </label> <input type="text" id="bundle" name="bundle" value="2" /> (cables per bundle) <br />
             <label>Bundle spacing (if bundle size >1): </label> <input type="text" id="bundle_spacing" name="bundle_spacing" value="1.5" /> (ft) <br />
             <br />
@@ -173,12 +252,20 @@
             <label>Neutral 2 position (x, y): </label><input type="text" id="n2x" name="n2x" value="40" />, <input type="text" id="n2y" name="n2y" value="71" /> (ft)<br />
             <label>Neutral conductor resistance: </label><input type="text" id="Rn1" name="Rn1" value="1.52" /> (ohms per km per conductor) <br />
             <label>Neutral conductor geometric mean radius (GMR): </label><input type="text" id="GMRn1" name="GMRn1" value="0.0021" /> (feet) <br />
+            <label>Neutral conductor outer diameter (OD): </label><input type="text" id="ODn" name="ODn" value="0.3937" /> (inches) <br />
             <input type="button" id="Submit" name="Submit" value="Calculate" onclick="calcImpedance()"/>
             <br />
             <br />
+            <br />Series impedance:<br />
             <span>Z<sub>0</sub> = </span><span id="Z0"></span><br />
             <span>Z<sub>1</sub> = </span><span id="Z1"></span><br />
             <span>Z<sub>2</sub> = </span><span id="Z2"></span><br />
+            <br />
+            <br />Shunt admittance:<br />
+            <span>Y<sub>0</sub> = </span><span id="Y0"></span><br />
+            <span>Y<sub>1</sub> = </span><span id="Y1"></span><br />
+            <span>Y<sub>2</sub> = </span><span id="Y2"></span><br />
+            <br />
         </form>
     </body>
 </html>
